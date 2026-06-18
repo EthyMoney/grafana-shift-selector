@@ -1,6 +1,73 @@
 import { TPropOptions } from '../types';
-import { TShiftGroupedData, TPanelSelectOption, TShift } from '../types/shifts';
+import { TShiftGroupedData, TPanelSelectOption, TShift, TShiftGroup } from '../types/shifts';
 import { getTimeObject, isNextDay, timeObjectToUnix, timeStringToUnix, TTimeObject, TTimeString } from './time';
+
+const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+export const getWeekdayIndex = (dayLabel: string): number => {
+  const normalized = dayLabel.toLowerCase();
+
+  return weekDays.findIndex((day) => day === normalized || day.startsWith(normalized.slice(0, 3)));
+};
+
+export const matchesDayRange = (label: string, dayIndex: number): boolean => {
+  const normalized = label.toLowerCase();
+  const matches = normalized.match(/monday|tuesday|wednesday|thursday|friday|saturday|sunday/g) ?? [];
+
+  if (!matches.length) {
+    return false;
+  }
+
+  if (matches.length === 1) {
+    return getWeekdayIndex(matches[0]) === dayIndex;
+  }
+
+  const startLabel = matches[0];
+  const endLabel = matches[matches.length - 1];
+
+  if (!startLabel || !endLabel) {
+    return false;
+  }
+
+  const start = getWeekdayIndex(startLabel);
+  const end = getWeekdayIndex(endLabel);
+
+  if (start < 0 || end < 0) {
+    return false;
+  }
+
+  if (normalized.includes('-') || normalized.includes('to')) {
+    if (start <= end) {
+      return dayIndex >= start && dayIndex <= end;
+    }
+
+    return dayIndex >= start || dayIndex <= end;
+  }
+
+  return matches.some((match) => getWeekdayIndex(match) === dayIndex);
+};
+
+export const findShiftGroupByProductionDate = (
+  shiftGroups: TShiftGroupedData,
+  productionDateValue?: string
+): TShiftGroup | null => {
+  if (!productionDateValue) {
+    return null;
+  }
+
+  const isoDateMatch = productionDateValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const productionDate = isoDateMatch
+    ? new Date(Number(isoDateMatch[1]), Number(isoDateMatch[2]) - 1, Number(isoDateMatch[3]))
+    : new Date(productionDateValue);
+
+  if (Number.isNaN(productionDate.getTime())) {
+    return null;
+  }
+
+  const dayIndex = productionDate.getDay();
+
+  return Object.values(shiftGroups).find((group) => matchesDayRange(group.label, dayIndex)) ?? null;
+};
 
 export const hasMultipleShiftGroups = (shiftsData: TShiftGroupedData | null): boolean =>
   Object.keys(shiftsData || {}).length > 1;

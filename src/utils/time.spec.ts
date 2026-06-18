@@ -38,7 +38,7 @@ describe('Parse Time Data', () => {
   });
 
   it('should format date correctly', () => {
-    const date = new Date('2024-07-31');
+    const date = new Date(2024, 6, 31);
 
     expect(formatToDate(date)).toBe('2024-07-31');
   });

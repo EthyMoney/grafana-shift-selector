@@ -10,16 +10,12 @@ export const changeShift = (uuid: string, shift: TShift, store: TStore) => {
   const path = locationService.getLocation();
   const url = new URLSearchParams(path.search);
 
-  if (store.props?.ux.realtime.shift.isEndToNow) {
-    return
-  }
-
   if (store.props && shift) {
     const { startDate, endDate } = getDateByTimeObjectByContext(store.props, shift) ?? {};
 
     if (startDate && endDate) {
-      url.set('from', startDate.toISOString());
-      url.set('to', typeof endDate === 'string' ? endDate : endDate.toISOString());
+      url.set('from', String(startDate.getTime()));
+      url.set('to', typeof endDate === 'string' ? endDate : String(endDate.getTime()));
     }
   }
 
@@ -52,6 +48,7 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
   const url = new URLSearchParams(path.search);
   const isSetTime = checkIfDashboardTimeIsSet();
   const isFixedTime = props.options.ux.time.isFixed;
+  const isAutoSelect = props.options.ux.realtime.shift.isAutoSelect;
 
   if (shifts) {
     Object.entries(shifts).forEach(([, shiftGroup]) => {
@@ -62,23 +59,27 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
         if (shift?.start) {
           const { startDate, endDate } = getDateByTimeObjectByContext(props.options, shift);
 
-          if (!isSetTime) {
-            url.set('from', startDate.toISOString());
-            url.set('to', typeof endDate === 'string' ? endDate : endDate.toISOString());
-          } else if (props.options.ux.realtime.shift.isAutoSelect) {
+          if (isAutoSelect && !isSetTime) {
+            url.set('from', String(startDate.getTime()));
+            url.set('to', typeof endDate === 'string' ? endDate : String(endDate.getTime()));
+          } else if (isAutoSelect) {
             if (url.get('shift_uuid') !== shiftGroup.activeShift || isFixedTime) {
-              url.set('from', startDate.toISOString());
-              url.set('to', typeof endDate === 'string' ? endDate : endDate.toISOString());
+              url.set('from', String(startDate.getTime()));
+              url.set('to', typeof endDate === 'string' ? endDate : String(endDate.getTime()));
             }
           }
 
-          url.set('shift_uuid', shiftGroup.activeShift ?? '');
+          if (isAutoSelect) {
+            url.set('shift_uuid', shiftGroup.activeShift ?? '');
+          }
         }
       }
     });
   }
 
-  locationService.push('?' + url.toString());
+  if (isAutoSelect) {
+    locationService.push('?' + url.toString());
+  }
 
   return active;
 };

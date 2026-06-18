@@ -6,6 +6,7 @@ import { transformGrafanaResponse } from '../../utils/data';
 import { parseDynamicData, parseStaticData } from '../../utils/static.data';
 import { PanelProps } from '@grafana/data';
 import { setDashboardTime } from '../../utils/grafana/time';
+import { locationService } from '@grafana/runtime';
 
 export type TShiftActions = {
   setShifts: (shifts: TShiftGroupedData) => void;
@@ -101,10 +102,23 @@ export const StoreShiftsActions: StateCreator<TShifts, [['zustand/devtools', nev
     return group_uuid ? getState().shifts?.[group_uuid] ?? null : null;
   },
   getShiftsByInitGroup: () => {
-    const [shiftGroup] = Object.values(getState().shifts ?? {});
+    const shifts = getState().shifts ?? {};
+    const shiftUUID = locationService.getSearchObject()?.shift_uuid as string | undefined;
+
+    if (shiftUUID) {
+      const matchedShiftGroup = Object.values(shifts).find((group) =>
+        group.shifts.some((shift) => shift.uuid === shiftUUID)
+      );
+
+      if (matchedShiftGroup?.uuid && matchedShiftGroup.shifts.length) {
+        return shifts[matchedShiftGroup.uuid] ?? null;
+      }
+    }
+
+    const [shiftGroup] = Object.values(shifts);
 
     if (shiftGroup.uuid && shiftGroup?.shifts?.length) {
-      return getState().shifts?.[shiftGroup.uuid] ?? null;
+      return shifts[shiftGroup.uuid] ?? null;
     }
 
     return null;

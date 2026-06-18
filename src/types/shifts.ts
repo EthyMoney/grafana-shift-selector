@@ -29,7 +29,7 @@ export type TShift = {
 };
 
 export type TRawShift = {
-  uuid: string;
+  uuid?: string;
   label: string;
   startTime: TTimeString;
   endTime: TTimeString;
@@ -38,7 +38,7 @@ export type TRawShift = {
 
 export type TRawStaticShift = TRawShift & {
   group: string;
-  group_uuid: string;
+  group_uuid?: string;
 };
 
 export type TStaticRawData = TPropOptions['settings']['dataSource']['static']['data'];

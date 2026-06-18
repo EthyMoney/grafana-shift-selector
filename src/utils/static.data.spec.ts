@@ -29,7 +29,81 @@ describe('Static Shift Data', () => {
     expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeTruthy();
   });
 
-  it('should filter only group: uuid_1', () => {
+  it('should parse wrapped static shifts config format', () => {
+    const wrappedConfig = {
+      static: {
+        shifts: JSON.parse(propStaticOptions.settings.dataSource.static.data),
+      },
+    };
+
+    const propOptions = processProps({
+      ...propStaticOptions,
+      settings: {
+        ...propStaticOptions.settings,
+        dataSource: {
+          ...propStaticOptions.settings.dataSource,
+          static: {
+            data: JSON.stringify(wrappedConfig),
+          },
+        },
+      },
+    });
+
+    const staticShiftData = parseStaticData(propOptions);
+
+    expect(staticShiftData).not.toBeNull();
+    expect(Object.keys(staticShiftData ?? {})).toContain('uuid_1');
+    expect(Object.keys(staticShiftData ?? {})).toContain('uuid_2');
+  });
+
+  it('should parse static shifts without uuid and group_uuid', () => {
+    const minimalConfig = {
+      static: {
+        shifts: [
+          {
+            group: 'Weekdays',
+            label: 'A',
+            startTime: '06:00:00',
+            endTime: '14:00:00',
+            order: 2,
+          },
+          {
+            group: 'Weekdays',
+            label: 'B',
+            startTime: '14:00:00',
+            endTime: '22:00:00',
+            order: 1,
+          },
+        ],
+      },
+    };
+
+    const propOptions = processProps({
+      ...propStaticOptions,
+      settings: {
+        ...propStaticOptions.settings,
+        dataSource: {
+          ...propStaticOptions.settings.dataSource,
+          static: {
+            data: JSON.stringify(minimalConfig),
+          },
+        },
+      },
+    });
+
+    const staticShiftData = parseStaticData(propOptions);
+
+    expect(staticShiftData).not.toBeNull();
+    expect(Object.keys(staticShiftData ?? {})).toContain('group_weekdays');
+
+    const shifts = staticShiftData?.['group_weekdays'].shifts ?? [];
+    expect(shifts.length).toBe(2);
+    expect(shifts.every((shift) => shift.uuid.length > 0)).toBeTruthy();
+    // order is a tie-breaker after startTime; here start times differ so A (06:00) remains first.
+    expect(shifts[0]?.label).toBe('A');
+  });
+
+  it('should ignore legacy filter settings and keep all groups', () => {
     let propOptions = { ...propStaticOptions };
     propOptions.settings.dataSource.filter.group = 'uuid_1';
     propOptions.settings.time.isEndToNow = true;
@@ -39,26 +113,12 @@ describe('Static Shift Data', () => {
     const staticData = parseStaticData(propOptions);
     propOptions = initShiftsData(propOptions, staticData);
 
-    expect(parseStaticData(propOptions)).toStrictEqual({
-      ['uuid_1']: {
-        ...testShiftData['uuid_1'],
-        activeShift: testShiftData['uuid_1'].shifts[0].uuid,
-        shifts: [
-          {
-            ...testShiftData['uuid_1'].shifts[0],
-            isActive: true,
-            end: getTimeNowObject(propOptions),
-            prevEnd: testShiftData['uuid_1'].shifts[0].end,
-          },
-        ],
-      },
-    });
-
     const staticUUID1Data = parseStaticData(propOptions);
     propOptions = initShiftsData(propOptions, staticUUID1Data);
 
-    expect(staticUUID1Data?.['uuid_2']).toBeUndefined();
-    expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeFalsy();
+    expect(staticUUID1Data?.['uuid_1']).toBeDefined();
+    expect(staticUUID1Data?.['uuid_2']).toBeDefined();
+    expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeTruthy();
   });
 
   it('should change the end time of active shift when isEndToNow=true', () => {
@@ -87,7 +147,7 @@ describe('Static Shift Data', () => {
 
   it('should should disable upcoming shifts when isEndToNow=true', () => {
     let propOptions = { ...propStaticOptions };
-    propOptions.settings.dataSource.filter.group = 'uuid_2';
+    propOptions.settings.dataSource.filter.group = '';
     propOptions.settings.time.isEndToNow = true;
     propOptions = processProps(propOptions);
     propOptions = setCurrentDateTime(propOptions, new Date('2000-01-01 15:00'));
@@ -104,7 +164,7 @@ describe('Static Shift Data', () => {
       const disabledShifts = activeShiftGroup.shifts.filter(({ isDisabled }) => isDisabled);
 
       expect(activeShiftGroup.activeShift).toBe('shift_uuid_2');
-      expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeFalsy();
+      expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeTruthy();
       expect(activeShift?.end).toStrictEqual(getTimeNowObject(propOptions));
       expect(upcomingShifts).toStrictEqual(disabledShifts);
     }

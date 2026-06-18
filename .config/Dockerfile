@@ -26,18 +26,18 @@ USER root
 
 # Installing supervisor and inotify-tools
 RUN if [ "${development}" = "true" ]; then \
-    if grep -i -q alpine /etc/issue; then \
-    apk add git inotify-tools supervisor && \
-    rm -rf /var/cache/apk/*; \
-    elif grep -i -q ubuntu /etc/issue; then \
-    DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get install -y git inotify-tools supervisor && \
-    rm -rf /var/lib/apt/lists/*; \
-    else \
-    echo 'ERROR: Unsupported base image' && /bin/false; \
-    fi \
-    fi
+  if grep -i -q alpine /etc/issue; then \
+  apk add git inotify-tools supervisor && \
+  rm -rf /var/cache/apk/*; \
+  elif grep -i -q ubuntu /etc/issue; then \
+  DEBIAN_FRONTEND=noninteractive && \
+  apt-get update && \
+  apt-get install -y git inotify-tools supervisor && \
+  rm -rf /var/lib/apt/lists/*; \
+  else \
+  echo 'ERROR: Unsupported base image' && /bin/false; \
+  fi \
+  fi
 
 COPY supervisord/supervisord.conf /etc/supervisor.d/supervisord.ini
 COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -46,5 +46,5 @@ COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

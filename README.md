@@ -1,13 +1,19 @@
 # Grafana Shift Selector Plugin
 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+[![license](https://img.shields.io/github/license/isaozler/grafana-shift-selector.svg)](LICENSE)
 
 The shift selector allows you to adjust the time range of your grafana dashboard to one specific shift or a range of shifts.
 On this page we'll show you how it works and how you can adjust the displayed shifts to a specific season or production line.
 
+## Development prerequisites
+
+- Node.js 24.x (`.nvmrc` is set to `24`)
+- pnpm 9+
+- Docker (optional, for running Grafana and MySQL locally)
+
 ![Shift selector](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_default.png)
 
-# Realtime Shift Track feature (\*new feature\*\*)
+## Realtime Shift Track feature (\*new feature\*\*)
 
 With this new feature, you can enable the shift selector to track shifts automatically based on the local time. So you don't need to change shifts manually. To use this new feature, you need to enable it through the panel options.
 
@@ -15,11 +21,11 @@ With this new feature, you can enable the shift selector to track shifts automat
 - Determine a `refresh interval` (these should be according to the time interval pattern of Grafana. Eg. for 5 seconds -> `5s`, 1 hour -> `1h`)
 - Optionally, if you have multiple groups, determine a group to auto-select from. It uses the `group_uuid`
 
-_Be aware that enabling real-time will hide the date and range selectors_
+**Note:** Enabling real-time hides the date and range selectors.
 
 ![Shift selector Realtime](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_realtime.png)
 
-# New panel options
+## New panel options
 
 - Data Mapper replaces the variables `var_query_map`
 - Simple quick start flow (without need the need of variables)
@@ -32,7 +38,7 @@ _Be aware that enabling real-time will hide the date and range selectors_
     - or with icons and text, which is the default option
 - Change the range `"Start-End"`, `"Start"` and, `"End"` labels.
 
-# Quick Start (static shifts)
+## Quick Start (static shifts)
 
 With this plugin you are able to choose between dynamic (from a `datasource`) and static.
 
@@ -79,9 +85,15 @@ To start quickly, set shifts (groups) in the `Data Mapper` panel:
 
 Now you are able to see the shifts in two groups. `Group 1` and `Group 2`. This could for example be summer or winter time.
 
+Notes for static fields:
+
+- `uuid` is optional for static config. If omitted, the plugin generates a stable fallback UUID.
+- `group_uuid` is optional for static config. If omitted, the plugin generates a group UUID from the `group` label.
+- `order` is optional. It is used only as a tie-breaker when two shifts have the same `startTime`; otherwise `startTime` determines the sort order.
+
 In order to set you shifts from a datasource please continue to read.
 
-# Shifts from datasources
+## Shifts from datasources
 
 ## Functionalities
 

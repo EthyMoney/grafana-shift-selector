@@ -19,4 +19,4 @@ services:
       - plugin:/var/lib/grafana/plugins/isaozler-shiftselector-panel
       - ./provisioning:/etc/grafana/provisioning
       - ./.config/data/grafana:/var/lib/grafana
-      - ./.config/docker/grafana.ini:/etc/grafana/grafana.ini
+      - ./.config/docker/grafana.ini/grafana.ini:/etc/grafana/grafana.ini

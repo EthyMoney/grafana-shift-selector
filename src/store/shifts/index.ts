@@ -19,7 +19,7 @@ export const initialState: TShifts = {
 
 export type TShiftStore = TShifts & TShiftActions;
 
-export const StoreShifts: StateCreator<TStore, [['zustand/devtools', never]], [], TShifts> = (...args) => ({
+export const StoreShifts: StateCreator<TStore, [['zustand/devtools', never]], [], TShiftStore> = (...args) => ({
   ...initialState,
   ...StoreShiftsActions(...args),
 });

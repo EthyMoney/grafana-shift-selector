@@ -6,9 +6,7 @@ import { TPanelSelectOption } from '../types/shifts';
 const category = ['Filter Data'];
 
 export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>, globalData: TGlobalData) => {
-  const groups = composeGroupUUIDSelectOptions(
-    (globalData.options?.data?.shifts ? { ...globalData.options.data.shifts } : {}) || null
-  );
+  const groups = composeGroupUUIDSelectOptions(globalData.options?.data?.shifts ?? null);
   let shifts: TPanelSelectOption[] | [] = [];
 
   if (globalData.options?.settings.dataSource.filter.group && globalData.options?.data?.shifts) {

@@ -1,13 +1,9 @@
 import { PanelOptionsEditorBuilder, PanelPlugin } from '@grafana/data';
 
 import { options as dataSourceOptions } from './options/dataSource';
-import { options as dataSourceFiltersOptions } from './options/dataSource.filters';
 import { options as dataSourceMappingsDbOptions } from './options/dataSource.mappings.db';
 import { options as behaviourOptions } from './options/behaviour';
-import { options as dateSelectorOptions } from './options/dateSelector';
 // import { options as rangeButtonOptions } from './options/rangeButton';
-import { options as shiftLabelsOptions } from './options/shiftLabels';
-import { options as filterOptions } from './options/filters';
 // import { options as replayOptions } from './options/replay';
 
 import type { TGlobalData, TPropOptions } from './types';
@@ -34,12 +30,8 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
     builder,
     dataSourceOptions,
     dataSourceMappingsDbOptions,
-    dataSourceFiltersOptions,
     behaviourOptions,
-    dateSelectorOptions,
     // rangeButtonOptions,
-    shiftLabelsOptions,
-    filterOptions,
     // replayOptions
   );
 });

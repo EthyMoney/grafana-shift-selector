@@ -2,7 +2,7 @@ import { propStaticOptions } from '../tests/props';
 import { testShiftData, staticShiftData } from '../tests/stub.data';
 import type { TRawStaticShift } from '../types/shifts';
 import { processProps } from './props';
-import { hasMultipleShiftGroups, initShiftsData } from './shift';
+import { findShiftGroupByProductionDate, hasMultipleShiftGroups, initShiftsData } from './shift';
 import { parseStaticData } from './static.data';
 import { appendShiftToStaticDataAsString } from './tests/helpers';
 import { parseTime, setCurrentDateTime } from './time';
@@ -32,41 +32,78 @@ describe('Shift Processes', () => {
     expect(updatedDataWithShifts.state.shifts.hasMultipleShiftGroups).toBeFalsy();
   });
 
-  it('should process filtered shifts correctly', () => {
+  it('should ignore legacy filter settings when parsing shifts', () => {
     const groupUUID = 'uuid_2';
-    const shiftUUIDs = ['shift_uuid_3'];
 
     let propOptions = processProps(propStaticOptions);
     propOptions.settings.time.isEndToNow = false;
     propOptions.settings.dataSource.filter.group = groupUUID;
-    propOptions.settings.dataSource.filter.shifts = shiftUUIDs;
+    propOptions.settings.dataSource.filter.shifts = ['shift_uuid_3'];
     propOptions = setCurrentDateTime(propOptions, new Date('2000-01-01 15:00'));
 
     const _staticShiftData = parseStaticData(propOptions);
-    const shifts = testShiftData[groupUUID].shifts.filter(({ uuid }) => shiftUUIDs.includes(uuid));
 
     propOptions = initShiftsData(propOptions, _staticShiftData);
 
-    expect(_staticShiftData).toStrictEqual({
-      [groupUUID]: {
-        ...testShiftData[groupUUID],
-        hasNextDayShifts: shifts.some(({ isNextDay }) => isNextDay),
-        shifts,
+    expect(_staticShiftData?.['uuid_1']).toBeDefined();
+    expect(_staticShiftData?.['uuid_2']).toBeDefined();
+    expect(hasMultipleShiftGroups(propOptions.state?.shifts.data || null)).toBeTruthy();
+    expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeTruthy();
+    expect(propOptions.state.shifts.data?.[groupUUID].activeShift).toBe('shift_uuid_2');
+  });
+
+  it('should match monday-thursday group for wednesday production day', () => {
+    const shifts = {
+      uuid_1: {
+        label: 'Monday - Thursday',
+        uuid: 'uuid_1',
+        activeShift: null,
+        shifts: [
+          { uuid: 'shift_uuid_1', label: 'Shift 1', start: { hour: 5, minute: 0 }, end: { hour: 15, minute: 30 } },
+          { uuid: 'shift_uuid_2', label: 'Shift 2', start: { hour: 15, minute: 30 }, end: { hour: 1, minute: 30 } },
+        ],
       },
-    });
+      uuid_2: {
+        label: 'Friday - Sunday',
+        uuid: 'uuid_2',
+        activeShift: null,
+        shifts: [
+          { uuid: 'shift_uuid_3', label: 'Shift 3', start: { hour: 5, minute: 0 }, end: { hour: 17, minute: 30 } },
+        ],
+      },
+    };
 
-    expect(hasMultipleShiftGroups(propOptions.state?.shifts.data || null)).toBeFalsy();
-    expect(propOptions.state.shifts.hasMultipleShiftGroups).toBeFalsy();
-    expect(propOptions.state.shifts.data?.[groupUUID].activeShift).toBeNull();
+    const group = findShiftGroupByProductionDate(shifts, '2026-06-17'); // Wednesday
 
-    if (propOptions.state?.shifts.data && propOptions.data?.shifts?.[groupUUID]) {
-      const filteredShiftGroup = propOptions.data.shifts[groupUUID];
-      filteredShiftGroup.shifts = filteredShiftGroup.shifts.filter(({ uuid }) => shiftUUIDs.includes(uuid));
-      filteredShiftGroup.hasNextDayShifts = filteredShiftGroup.shifts.some(({ isNextDay }) => isNextDay);
-      expect(propOptions.state.shifts.data).toStrictEqual({
-        [groupUUID]: filteredShiftGroup,
-      });
-    }
+    expect(group?.uuid).toBe('uuid_1');
+    expect(group?.shifts.length).toBe(2);
+  });
+
+  it('should match friday-sunday group for friday production day', () => {
+    const shifts = {
+      uuid_1: {
+        label: 'Monday - Thursday',
+        uuid: 'uuid_1',
+        activeShift: null,
+        shifts: [
+          { uuid: 'shift_uuid_1', label: 'Shift 1', start: { hour: 5, minute: 0 }, end: { hour: 15, minute: 30 } },
+          { uuid: 'shift_uuid_2', label: 'Shift 2', start: { hour: 15, minute: 30 }, end: { hour: 1, minute: 30 } },
+        ],
+      },
+      uuid_2: {
+        label: 'Friday - Sunday',
+        uuid: 'uuid_2',
+        activeShift: null,
+        shifts: [
+          { uuid: 'shift_uuid_3', label: 'Shift 3', start: { hour: 5, minute: 0 }, end: { hour: 17, minute: 30 } },
+        ],
+      },
+    };
+
+    const group = findShiftGroupByProductionDate(shifts, '2026-06-19'); // Friday
+
+    expect(group?.uuid).toBe('uuid_2');
+    expect(group?.shifts.length).toBe(1);
   });
 
   it('should mark shifts correctly with overlapping end and start time', () => {

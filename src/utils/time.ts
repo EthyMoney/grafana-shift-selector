@@ -38,12 +38,25 @@ export const getDateByTimeObjectByContext = (
   startDate: Date;
   endDate: Date | string;
 } => {
+  const parseProductionDate = (value?: string): Date => {
+    if (!value) {
+      return new Date();
+    }
+
+    const isoDateMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    if (isoDateMatch) {
+      return new Date(Number(isoDateMatch[1]), Number(isoDateMatch[2]) - 1, Number(isoDateMatch[3]));
+    }
+
+    const parsed = new Date(value);
+
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  };
+
   const isFixedTime = options.ux.time.isFixed;
   const currentTime = !isFixedTime ? getTimeObject() : options.settings.time.current;
-  const productionDate =
-    options.ui.element.date.input.value && options.ui.element.date.input.isVisible
-      ? new Date(options.ui.element.date.input.value)
-      : new Date();
+  const productionDate = parseProductionDate(options.ui.element.date.input.value);
 
   let startDate: Date;
   let endDate: Date | string = 'now';
@@ -158,9 +171,12 @@ export const timeObjectToUnix = (time: TTimeObject, options?: TUnixTimeOptions):
 };
 
 export const getNowDate = (date: string | TTimeObject, options: TPropOptions): Date => {
-  const newDate =
-    options.ui.element.date.input.value && options.ui.element.date.input.isVisible
-      ? new Date(options.ui.element.date.input.value)
+  const value = options.ui.element.date.input.value;
+  const isoDateMatch = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const newDate = isoDateMatch
+    ? new Date(Number(isoDateMatch[1]), Number(isoDateMatch[2]) - 1, Number(isoDateMatch[3]))
+    : value
+      ? new Date(value)
       : new Date();
 
   if (typeof date === 'string') {

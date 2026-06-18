@@ -3,16 +3,71 @@ import type { TRawStaticShift, TShift, TShiftGroupedData } from '../types/shifts
 import { isUpcomingShift, setShiftStates, sortShifts } from './shift';
 import { getTimeObject, parseTime } from './time';
 
+type TStaticShiftPayload =
+  | TRawStaticShift[]
+  | {
+    static?: {
+      shifts?: TRawStaticShift[];
+    };
+    shifts?: TRawStaticShift[];
+  };
+
+const normalizeStaticShiftsPayload = (payload: TStaticShiftPayload): TRawStaticShift[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.static?.shifts)) {
+    return payload.static.shifts;
+  }
+
+  if (Array.isArray(payload?.shifts)) {
+    return payload.shifts;
+  }
+
+  throw new Error('Invalid static shifts format. Expected an array or { static: { shifts: [] } }.');
+};
+
+const sanitizeForId = (value: string): string => {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '') || 'item';
+};
+
+const getGroupUUID = (shift: TRawStaticShift): string => {
+  if (shift.group_uuid?.trim()) {
+    return shift.group_uuid.trim();
+  }
+
+  return `group_${sanitizeForId(shift.group || '')}`;
+};
+
+const getShiftUUID = (shift: TRawStaticShift, groupUUID: string, index: number): string => {
+  if (shift.uuid?.trim()) {
+    return shift.uuid.trim();
+  }
+
+  const label = sanitizeForId(shift.label || 'shift');
+  const start = sanitizeForId(shift.startTime || 'start');
+  const end = sanitizeForId(shift.endTime || 'end');
+
+  return `${groupUUID}__${label}__${start}__${end}__${index}`;
+};
+
 export const parseStaticData = (options: TPropOptions): TShiftGroupedData | null => {
   try {
-    let data = JSON.parse(options.settings.dataSource.static.data);
-    data = groupShiftsByGroup(data, options.settings.dataSource.filter, options);
+    const payload = JSON.parse(options.settings.dataSource.static.data) as TStaticShiftPayload;
+    const rawShifts = normalizeStaticShiftsPayload(payload);
+
+    let groupedData = groupShiftsByGroup(rawShifts, options);
 
     if (options.settings?.time?.isEndToNow) {
-      data = disableUpcomingShifts(data, options);
+      groupedData = disableUpcomingShifts(groupedData, options);
     }
 
-    return data;
+    return groupedData;
   } catch (error) {
     console.error(error);
     return null;
@@ -21,7 +76,7 @@ export const parseStaticData = (options: TPropOptions): TShiftGroupedData | null
 
 export const parseDynamicData = (rawData: TRawStaticShift[], options: TPropOptions): TShiftGroupedData | null => {
   try {
-    let data = groupShiftsByGroup(rawData, options.settings.dataSource.filter, options);
+    let data = groupShiftsByGroup(rawData, options);
 
     if (options.settings?.time?.isEndToNow) {
       data = disableUpcomingShifts(data, options);
@@ -57,36 +112,31 @@ const disableUpcomingShifts = (data: TShiftGroupedData, options: TPropOptions): 
 
 const groupShiftsByGroup = (
   shifts: TRawStaticShift[],
-  { group: filterGroup, shifts: filterShifts }: TPropOptions['settings']['dataSource']['filter'],
   options: TPropOptions
 ): TShiftGroupedData => {
   const shiftGroup = sortShifts<TRawStaticShift>(shifts, 'startTime').reduce((acc, shift, index) => {
-    if (!!filterGroup && shift.group_uuid !== filterGroup) {
-      return acc;
-    }
+    const groupUUID = getGroupUUID(shift);
 
-    const { group_uuid, group } = shift;
+    const { group } = shift;
 
-    if (!acc[group_uuid]) {
-      acc[group_uuid] = {
+    if (!acc[groupUUID]) {
+      acc[groupUUID] = {
         label: group,
-        uuid: group_uuid,
+        uuid: groupUUID,
         activeShift: null,
         shifts: [],
       };
     }
 
     const shiftData: TShift = {
-      uuid: shift.uuid,
+      uuid: getShiftUUID(shift, groupUUID, index),
       label: shift.label,
       start: parseTime(shift.startTime),
       end: parseTime(shift.endTime),
       order: shift.order ?? index,
     };
 
-    if (filterShifts?.includes(shift.uuid) || !filterShifts?.length) {
-      acc[group_uuid].shifts.push(shiftData);
-    }
+    acc[groupUUID].shifts.push(shiftData);
 
     return acc;
   }, {} as TShiftGroupedData);

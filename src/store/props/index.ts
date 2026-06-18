@@ -9,7 +9,7 @@ export type TOptions = {
 
 export type TPropsStore = TOptions & TShiftActions;
 
-export const StoreProps: StateCreator<TStore, [['zustand/devtools', never]], [], TOptions> = (...args) => ({
+export const StoreProps: StateCreator<TStore, [['zustand/devtools', never]], [], TPropsStore> = (...args) => ({
   props: null,
   ...StorePropActions(...args),
 });

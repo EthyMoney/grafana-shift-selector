@@ -12,21 +12,13 @@ const setTimeSettings = (options: TPropOptions): TPropOptions['settings']['time'
 };
 
 export const processProps = (options: TPropOptions): TPropOptions => {
-  if (!options.ui.element.date.input.isVisible) {
-    options.ui.element.date.input.value = '';
-  } else {
-    options.ui.element.date.input.value = options.ui.element.date.input.value || formatToDate();
-  }
+  // Fixed-time mode is deprecated and intentionally disabled.
+  options.ux.time.isFixed = false;
+
+  options.ui.element.date.input.isVisible = true;
+  options.ui.element.date.input.value = options.ui.element.date.input.value || formatToDate();
 
   options.settings.time = setTimeSettings(options);
-
-  if (options.ux.time.isFixed && !options.ux.realtime.shift.isEndToNow) {
-    options.ux.realtime.shift.isAutoSelect = false;
-    options.ux.realtime.shift.isEndToNow = false;
-    options.ux.realtime.shift.isCustomRefreshInterval = false;
-    options.ux.realtime.shift.refreshInterval = 0;
-    options.ui.element.progressBar.isVisible = false;
-  }
 
   return options;
 };
