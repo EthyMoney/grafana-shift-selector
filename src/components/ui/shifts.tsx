@@ -48,7 +48,7 @@ export const Shifts = () => {
     return formatToDate(parsed);
   };
 
-  const dateValue = normalizeDateInput(store.props?.ui.element.date.input.value);
+  const dateValue = normalizeDateInput(store.props?.ui?.element?.date?.input?.value);
 
   const groupedShifts = React.useMemo(() => {
     if (!store.shifts) {
@@ -155,7 +155,9 @@ export const ShiftComponent: ComponentType<{ children?: React.ReactNode; data: T
 
   const selectedShiftUUID = store.setToActive?.uuid || (locationService.getSearchObject()?.active_shift_uuid as string | undefined);
   const isSelected = selectedShiftUUID === data.uuid;
-  const selectedProductionDate = normalizeDateInput(store.props?.ui.element.date.input.value);
+  const selectedProductionDate = normalizeDateInput(store.props?.ui?.element?.date?.input?.value);
+  const isFixedTime = !!store.props?.ux?.time?.isFixed;
+  const fixedCurrentTime = store.props?.settings?.time?.current;
   const isCurrentBrowserDay = selectedProductionDate === formatToDate(new Date());
 
   if (!data.start || !data.end) {
@@ -170,17 +172,19 @@ export const ShiftComponent: ComponentType<{ children?: React.ReactNode; data: T
           data-active={data.isActive}
           data-closest={data.isClosest}
           data-selected={isSelected}
-          data-is-fixed={store.props?.ux.time.isFixed}
+          data-is-fixed={isFixedTime}
           data-manual-active={store.setToActive?.uuid === data.uuid}
-          {...(store.props?.ux.time.isFixed && data.isActive ? { title: `Time is fixed to: ${stringifyTime(store.props.settings.time.current)}` } : {})}
+          {...(isFixedTime && data.isActive && fixedCurrentTime
+            ? { title: `Time is fixed to: ${stringifyTime(fixedCurrentTime)}` }
+            : {})}
           onClick={() => changeShift(groupUUID, data, store)}
         >
           <ButtonLabel>
-            {store.props?.ux.time.isFixed && data.isActive ? <Lock /> : ''}
+            {isFixedTime && data.isActive ? <Lock /> : ''}
             <span>{data.label}</span>
           </ButtonLabel>
-          {store.props?.ux.time.isFixed && data.isActive
-            ? <ShiftTimeRange>{stringifyTime(store.props.settings.time.current)}</ShiftTimeRange>
+          {isFixedTime && data.isActive && fixedCurrentTime
+            ? <ShiftTimeRange>{stringifyTime(fixedCurrentTime)}</ShiftTimeRange>
             : <ShiftTimeRange>{[stringifyTime(data.start), stringifyTime(data.end)].join('-')}</ShiftTimeRange>
           }
         </Button>

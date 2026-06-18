@@ -8,12 +8,12 @@ export const DateIndicator = () => {
 
   return (
     <>
-      {store.props?.ui.element.date.input.value ? 
+      {store.props?.ui?.element?.date?.input?.value ?
         <Wrapper>
-          <Label>{store.props?.ui.element.date.label.value}</Label>
-          <Value>{store.props?.ui.element.date.input.value}</Value>
+          <Label>{store.props?.ui?.element?.date?.label?.value}</Label>
+          <Value>{store.props?.ui?.element?.date?.input?.value}</Value>
         </Wrapper>
-      : null}
+        : null}
     </>
   );
 };

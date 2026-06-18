@@ -7,6 +7,7 @@ import { parseDynamicData, parseStaticData } from '../../utils/static.data';
 import { PanelProps } from '@grafana/data';
 import { setDashboardTime } from '../../utils/grafana/time';
 import { locationService } from '@grafana/runtime';
+import { processProps } from '../../utils/props';
 
 export type TShiftActions = {
   setShifts: (shifts: TShiftGroupedData) => void;
@@ -74,15 +75,17 @@ export const StoreShiftsActions: StateCreator<TShifts, [['zustand/devtools', nev
     set(
       (state) => {
         let shifts, active;
+        const options = processProps(props.options);
+        const safeProps = { ...props, options };
 
-        if (props.options.settings.dataSource.type === 'static' && props.options.settings.dataSource.static.data) {
-          shifts = parseStaticData(props.options);
-        } else if (props.options.settings.dataSource.type === 'database' && props.data) {
-          shifts = parseDynamicData(transformGrafanaResponse(props.data, props.options), props.options);
+        if (options.settings.dataSource.type === 'static' && options.settings.dataSource.static.data) {
+          shifts = parseStaticData(options);
+        } else if (options.settings.dataSource.type === 'database' && props.data) {
+          shifts = parseDynamicData(transformGrafanaResponse(props.data, options), options);
         }
 
         if (shifts) {
-          active = setDashboardTime(shifts, props) ?? null;
+          active = setDashboardTime(shifts, safeProps) ?? null;
         }
 
         return {

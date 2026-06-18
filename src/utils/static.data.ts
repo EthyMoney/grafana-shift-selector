@@ -163,7 +163,7 @@ const getActiveShiftData = (shiftGroupData: TShiftGroupedData['uuid'], options: 
     ...shiftGroupData,
     shifts: shiftGroupData.shifts.map((shift) => {
       if (shift?.isActive && options.settings.time?.isEndToNow) {
-        if (options.ui.element.time.input.value) {
+        if (options?.ui?.element?.time?.input?.value) {
           shift.end = options.settings.time.current;
         } else {
           shift.end = getTimeObject();

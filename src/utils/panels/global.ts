@@ -6,7 +6,7 @@ export const processGlobalProps = (globalData: TGlobalData): TGlobalData => {
 };
 
 export const resetFixedTime = (globalData: TGlobalData): TGlobalData => {
-  if (!globalData.options?.ux.time.isFixed && globalData.options?.ui.element.time.input.value) {
+  if (!globalData.options?.ux?.time?.isFixed && globalData.options?.ui?.element?.time?.input?.value) {
     globalData.options.ui.element.time.input.value = '';
   }
 
@@ -14,7 +14,7 @@ export const resetFixedTime = (globalData: TGlobalData): TGlobalData => {
 };
 
 export const resetRelativeTime = (globalData: TGlobalData): TGlobalData => {
-  if (!globalData.options?.ui.element.date.input.isVisible && !!globalData.options?.settings.time.relativeTo) {
+  if (!globalData.options?.ui?.element?.date?.input?.isVisible && !!globalData.options?.settings?.time?.relativeTo) {
     globalData.options.settings.time.relativeTo = '';
   }
 

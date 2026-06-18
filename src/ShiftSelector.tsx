@@ -7,23 +7,25 @@ import { TPropOptions } from './types';
 import { ThemeProvider } from './components/themeProvider';
 import { Wrapper } from './components/ui/container';
 import { Shifts } from './components/ui/shifts';
+import { processProps } from './utils/props';
 
 const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
   const store = useData(props);
 
   useEffect(() => {
+    const normalizedOptions = processProps(props.options);
     const productionDate = locationService.getSearchObject()?.production_date as string | undefined;
     const nextOptions = productionDate
       ? {
-        ...props.options,
+        ...normalizedOptions,
         ui: {
-          ...props.options.ui,
+          ...normalizedOptions.ui,
           element: {
-            ...props.options.ui.element,
+            ...normalizedOptions.ui.element,
             date: {
-              ...props.options.ui.element.date,
+              ...normalizedOptions.ui.element.date,
               input: {
-                ...props.options.ui.element.date.input,
+                ...normalizedOptions.ui.element.date.input,
                 isVisible: true,
                 value: productionDate,
               },
@@ -31,7 +33,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
           },
         },
       }
-      : props.options;
+      : normalizedOptions;
 
     store.setProps(nextOptions);
     store.getShifts({ ...props, options: nextOptions });

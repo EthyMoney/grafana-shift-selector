@@ -13,6 +13,6 @@ RUN corepack enable && corepack pnpm install --frozen-lockfile --unsafe-perm
 
 COPY . .
 
-ENV development true
+ENV development=true
 
 CMD ["pnpm", "dev"]

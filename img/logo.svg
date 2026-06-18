@@ -1,17 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="500px" height="500px" viewBox="0 0 500 500" version="1.1"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs>
-        <linearGradient x1="20.2965437%" y1="12.1282762%" x2="88.8510694%" y2="96.327765%" id="linearGradient-1">
-            <stop stop-color="#FFC700" offset="0%"></stop>
-            <stop stop-color="#B15600" offset="100%"></stop>
-        </linearGradient>
-    </defs>
-    <g id="logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M163.333333,33 L163.333333,76.4 L336.666667,76.4 L336.666667,33 L380,33 L380,76.4 L401.666667,76.4 C425.599006,76.4 445,95.8308419 445,119.8 L445,423.6 C445,447.569158 425.599006,467 401.666667,467 L98.3333333,467 C74.4009942,467 55,447.569158 55,423.6 L55,119.8 C55,95.8308419 74.4009942,76.4 98.3333333,76.4 L120,76.4 L120,33 L163.333333,33 Z M401.666667,184.9 L98.3333333,184.9 L98.3333333,423.6 L401.666667,423.6 L401.666667,184.9 Z" id="Combined-Shape" fill="url(#linearGradient-1)" fill-rule="nonzero"></path>
-        <polyline id="Path" fill="#FFE400" fill-rule="nonzero" transform="translate(162.500000, 260.666667) rotate(-270.000000) translate(-162.500000, -260.666667) " points="140.833333 304.166667 140.833333 217.166667 184.166667 217.166667 184.166667 304.166667 140.833333 304.166667"></polyline>
-        <polyline id="Path-Copy" fill="#FF9D00" fill-rule="nonzero" transform="translate(249.950000, 304.216667) rotate(-270.000000) translate(-249.950000, -304.216667) " points="228.283333 347.716667 228.283333 260.716667 271.616667 260.716667 271.616667 347.716667 228.283333 347.716667"></polyline>
-        <polyline id="Path-Copy-2" fill="#FF0000" fill-rule="nonzero" transform="translate(336.950000, 347.216667) rotate(-270.000000) translate(-336.950000, -347.216667) " points="315.283333 390.716667 315.283333 303.716667 358.616667 303.716667 358.616667 390.716667 315.283333 390.716667"></polyline>
-    </g>
+<svg width="500"
+     height="500"
+     viewBox="0 0 500 500"
+     version="1.1"
+     xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient"
+                    x1="8%"
+                    y1="8%"
+                    x2="92%"
+                    y2="92%">
+      <stop offset="0%" stop-color="#0B3A91" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="ringGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%">
+      <stop offset="0%" stop-color="#DBEAFE" />
+      <stop offset="100%" stop-color="#93C5FD" />
+    </linearGradient>
+  </defs>
+  <rect x="0"
+        y="0"
+        width="500"
+        height="500"
+        rx="110"
+        fill="url(#bgGradient)" />
+  <circle cx="250"
+          cy="250"
+          r="150"
+          fill="none"
+          stroke="#1E40AF"
+          stroke-width="20"
+          opacity="0.45" />
+  <circle cx="250"
+          cy="250"
+          r="126"
+          fill="none"
+          stroke="url(#ringGradient)"
+          stroke-width="24" />
+  <path d="M259.5 141.4 A109 109 0 0 1 348.8 203.9"
+        fill="none"
+        stroke="#DBEAFE"
+        stroke-width="34"
+        stroke-linecap="round" />
+  <path d="M357.4 231.1 A109 109 0 0 1 304.5 344.4"
+        fill="none"
+        stroke="#93C5FD"
+        stroke-width="34"
+        stroke-linecap="round" />
+  <path d="M192.2 342.4 A109 109 0 0 1 152.1 202.2"
+        fill="none"
+        stroke="#60A5FA"
+        stroke-width="34"
+        stroke-linecap="round" />
+  <circle cx="250"
+          cy="250"
+          r="70"
+          fill="#0F2F78"
+          stroke="#EAF2FF"
+          stroke-width="8" />
+  <line x1="250"
+        y1="250"
+        x2="250"
+        y2="208"
+        stroke="#EAF2FF"
+        stroke-width="10"
+        stroke-linecap="round" />
+  <line x1="250"
+        y1="250"
+        x2="282"
+        y2="266"
+        stroke="#EAF2FF"
+        stroke-width="10"
+        stroke-linecap="round" />
+  <circle cx="250"
+          cy="250"
+          r="8"
+          fill="#EAF2FF" />
 </svg>

@@ -5,20 +5,20 @@ import { useStore } from '../../store';
 export const Indicators = () => {
   const store = useStore();
 
-  if (!store.props?.ui.element.progressBar.isVisible) {
+  if (!store.props?.ui?.element?.progressBar?.isVisible) {
     return null
   }
 
   return (
     <IndicatorsDiv>
       {
-      store.props?.ux.realtime.shift.isCustomRefreshInterval &&
-      store.props?.ux.realtime.shift.refreshInterval ? (
-        <Timer
-          duration={store.props.ux.realtime.shift.refreshInterval}
-          isAutoSelect={store.props?.ux.realtime.shift.isAutoSelect}
-        />
-      ) : null}
+        store.props?.ux?.realtime?.shift?.isCustomRefreshInterval &&
+          store.props?.ux?.realtime?.shift?.refreshInterval ? (
+          <Timer
+            duration={store.props.ux.realtime.shift.refreshInterval}
+            isAutoSelect={!!store.props?.ux?.realtime?.shift?.isAutoSelect}
+          />
+        ) : null}
     </IndicatorsDiv>
   );
 };

@@ -14,24 +14,25 @@ export const useData = (props: PanelProps<TPropOptions>) => {
   const customRefreshInterval = useRef<NodeJS.Timeout | null>(null);
 
   const refreshDashboard = useCallback(() => {
-    store.setProps(props.options);
-    store.getShifts(props);
+    const normalizedOptions = processProps(props.options);
+    store.setProps(normalizedOptions);
+    store.getShifts({ ...props, options: normalizedOptions });
   }, [props, store]);
 
   useEffect(() => {
     const path = locationService.getLocation();
     const url = new URLSearchParams(path.search);
     let shifts;
-    props.options = processProps(props.options);
+    const normalizedOptions = processProps(props.options);
 
-    if (props.options.settings.dataSource.type === 'static' && props.options.settings.dataSource.static.data) {
-      shifts = parseStaticData(props.options);
-    } else if (props.options.settings.dataSource.type === 'database' && props.data) {
-      shifts = parseDynamicData(transformGrafanaResponse(props.data, props.options), props.options);
+    if (normalizedOptions.settings.dataSource.type === 'static' && normalizedOptions.settings.dataSource.static.data) {
+      shifts = parseStaticData(normalizedOptions);
+    } else if (normalizedOptions.settings.dataSource.type === 'database' && props.data) {
+      shifts = parseDynamicData(transformGrafanaResponse(props.data, normalizedOptions), normalizedOptions);
     }
 
     if (shifts) {
-      store.setProps(initShiftsData(props.options, shifts));
+      store.setProps(initShiftsData(normalizedOptions, shifts));
       store.setShifts(shifts);
 
       const activeGroupUUID = url.get('group_uuid');
@@ -55,10 +56,10 @@ export const useData = (props: PanelProps<TPropOptions>) => {
       }
 
       if (
-        props.options.settings.time.refreshInterval &&
-        customRefreshIntervalOptions.find((option) => option.value === props.options.settings.time.refreshInterval)
+        normalizedOptions.settings.time.refreshInterval &&
+        customRefreshIntervalOptions.find((option) => option.value === normalizedOptions.settings.time.refreshInterval)
       ) {
-        customRefreshInterval.current = setInterval(refreshDashboard, props.options.settings.time.refreshInterval);
+        customRefreshInterval.current = setInterval(refreshDashboard, normalizedOptions.settings.time.refreshInterval);
       }
     }
     return () => {

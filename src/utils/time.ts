@@ -54,9 +54,9 @@ export const getDateByTimeObjectByContext = (
     return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
   };
 
-  const isFixedTime = options.ux.time.isFixed;
-  const currentTime = !isFixedTime ? getTimeObject() : options.settings.time.current;
-  const productionDate = parseProductionDate(options.ui.element.date.input.value);
+  const isFixedTime = !!options?.ux?.time?.isFixed;
+  const currentTime = !isFixedTime ? getTimeObject() : options?.settings?.time?.current ?? getTimeObject();
+  const productionDate = parseProductionDate(options?.ui?.element?.date?.input?.value);
 
   let startDate: Date;
   let endDate: Date | string = 'now';
@@ -71,11 +71,11 @@ export const getDateByTimeObjectByContext = (
     startDate = new Date(productionDate.setDate(productionDate.getDate() - 1));
   }
 
-  if (endDate === 'now' && !options.settings.time.relativeTo) {
+  if (endDate === 'now' && !options?.settings?.time?.relativeTo) {
     endDate = new Date();
   } else if (
     shift.end &&
-    ((endDate === 'now' && options.settings.time.relativeTo) || (!options.ux.realtime.shift.isEndToNow && shift.end))
+    ((endDate === 'now' && options?.settings?.time?.relativeTo) || (!options?.ux?.realtime?.shift?.isEndToNow && shift.end))
   ) {
     if (shift.isNextDay) {
       productionDate.setDate(productionDate.getDate() + 1);
@@ -91,7 +91,7 @@ export const getDateByTimeObjectByContext = (
 };
 
 export const getTimeNowObject = (options: TPropOptions): TTimeObject => {
-  if (options.ui.element.time.input.value && options.ux.time.isFixed) {
+  if (options?.ui?.element?.time?.input?.value && options?.ux?.time?.isFixed) {
     const inputTime = parseTime(options.ui.element.time.input.value as TTimeString);
 
     if (inputTime) {
@@ -171,7 +171,7 @@ export const timeObjectToUnix = (time: TTimeObject, options?: TUnixTimeOptions):
 };
 
 export const getNowDate = (date: string | TTimeObject, options: TPropOptions): Date => {
-  const value = options.ui.element.date.input.value;
+  const value = options?.ui?.element?.date?.input?.value;
   const isoDateMatch = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const newDate = isoDateMatch
     ? new Date(Number(isoDateMatch[1]), Number(isoDateMatch[2]) - 1, Number(isoDateMatch[3]))

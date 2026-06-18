@@ -104,10 +104,9 @@ describe('Static Shift Data', () => {
   });
 
   it('should ignore legacy filter settings and keep all groups', () => {
-    let propOptions = { ...propStaticOptions };
+    let propOptions = processProps({ ...propStaticOptions });
     propOptions.settings.dataSource.filter.group = 'uuid_1';
     propOptions.settings.time.isEndToNow = true;
-    propOptions = processProps(propOptions);
     propOptions = setCurrentDateTime(propOptions, new Date('2000-01-01 09:05'));
 
     const staticData = parseStaticData(propOptions);
@@ -122,10 +121,9 @@ describe('Static Shift Data', () => {
   });
 
   it('should change the end time of active shift when isEndToNow=true', () => {
-    let propOptions = { ...propStaticOptions };
+    let propOptions = processProps({ ...propStaticOptions });
     propOptions.settings.dataSource.filter.group = '';
     propOptions.settings.time.isEndToNow = true;
-    propOptions = processProps(propOptions);
     propOptions = setCurrentDateTime(propOptions, new Date('2000-01-01 09:00'));
 
     const staticData = parseStaticData(propOptions);
@@ -146,10 +144,9 @@ describe('Static Shift Data', () => {
   });
 
   it('should should disable upcoming shifts when isEndToNow=true', () => {
-    let propOptions = { ...propStaticOptions };
+    let propOptions = processProps({ ...propStaticOptions });
     propOptions.settings.dataSource.filter.group = '';
     propOptions.settings.time.isEndToNow = true;
-    propOptions = processProps(propOptions);
     propOptions = setCurrentDateTime(propOptions, new Date('2000-01-01 15:00'));
 
     const staticData = parseStaticData(propOptions);

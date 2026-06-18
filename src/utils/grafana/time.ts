@@ -9,6 +9,8 @@ import { TStore } from '../../store';
 export const changeShift = (uuid: string, shift: TShift, store: TStore) => {
   const path = locationService.getLocation();
   const url = new URLSearchParams(path.search);
+  const activeShiftUUIDFromURL = locationService.getSearchObject()?.active_shift_uuid as string | undefined;
+  const isSelected = store.setToActive?.uuid === shift.uuid || activeShiftUUIDFromURL === shift.uuid;
 
   if (store.props && shift) {
     const { startDate, endDate } = getDateByTimeObjectByContext(store.props, shift) ?? {};
@@ -19,9 +21,12 @@ export const changeShift = (uuid: string, shift: TShift, store: TStore) => {
     }
   }
 
-  if (store.setToActive?.uuid === shift.uuid) {
+  if (isSelected) {
+    url.set('from', 'now-1h');
+    url.set('to', 'now');
     url.delete('group_uuid');
     url.delete('active_shift_uuid');
+    url.delete('shift_uuid');
     store.unsetClickedShift();
   } else {
     url.set('group_uuid', uuid);
@@ -47,8 +52,8 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
   const path = locationService.getLocation();
   const url = new URLSearchParams(path.search);
   const isSetTime = checkIfDashboardTimeIsSet();
-  const isFixedTime = props.options.ux.time.isFixed;
-  const isAutoSelect = props.options.ux.realtime.shift.isAutoSelect;
+  const isFixedTime = !!props.options?.ux?.time?.isFixed;
+  const isAutoSelect = !!props.options?.ux?.realtime?.shift?.isAutoSelect;
 
   if (shifts) {
     Object.entries(shifts).forEach(([, shiftGroup]) => {

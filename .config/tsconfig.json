@@ -9,8 +9,9 @@
     "alwaysStrict": true,
     "declaration": false,
     "rootDir": "../src",
-    "baseUrl": "../src",
-    "typeRoots": ["../node_modules/@types"],
+    "typeRoots": [
+      "../node_modules/@types"
+    ],
     "resolveJsonModule": true
   },
   "ts-node": {
@@ -21,6 +22,9 @@
     },
     "transpileOnly": true
   },
-  "include": ["../src", "./types"],
+  "include": [
+    "../src",
+    "./types"
+  ],
   "extends": "@grafana/tsconfig"
 }
